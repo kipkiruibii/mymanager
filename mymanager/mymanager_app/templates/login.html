@@ -1,10 +1,95 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login to your account</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <script src="../static/js/index.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 <body>
+{% if request.user_agent.is_pc %}
+<nav class="" style="justify-content:space-between;display:flex">
+    <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
+    <div style="padding:10px" class="nav-links">
+    </div>
 
+</nav>
+
+<div style="margin-right:20%;padding-left:20%;">
+    <h1 style="text-align:center">Log In</h1>
+    <div class="form-box">
+        <form action="{% url 'login' %}" method="POST" style="margin-top:30px">
+            {% csrf_token %}
+            <label for="username">Username</label><br>
+            <input type="text" name="username"  id="username" placeholder="Enter Username"><br>
+            <label for="password">Password</label><br>
+            <input type="password" name="password" id="password" placeholder="Enter Password"><br>
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li style="color:red">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div style="align-items:center;display:flex;justify-content:center;width:100%;margin-top:30px">
+                <button type="submit" style="width:200px">
+                    LOG IN
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% else %}
+<!-- Sidebar -->
+<div class="w3-sidebar w3-bar-block w3-border-right w3-black" style="display:none;z-index:100000" id="mySidebar">
+      <a href="{% url 'home' %}" style="text-decoration:none;margin-top:30px;margin-bottom:50px;font-size:20px"><p id="title">TaskerHub</p></a>
+  <button onclick="w3_close()" class="w3-bar-item w3-large" style="margin-top:30px;margin-bottom:30px;width:130px;background:red;">Close &times;</button>
+  <nav style="margin-left:20px">
+        </nav>
+</div>
+<nav  style="justify-content:space-between;display:flex;width:100%;margin:0">
+    <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
+  <button class="w3-button w3-black w3-xlarge w3-text-white" onclick="w3_open()">☰</button>
+</nav>
+<div style="margin-right:10px;padding-left:10px;">
+    <h1 style="text-align:center">Log In</h1>
+    <div class="form-box">
+        <form action="{% url 'login' %}" method="POST" style="margin-top:30px">
+            {% csrf_token %}
+            <label for="username">Username</label><br>
+            <input type="text" name="username" style="width:100%" id="username" placeholder="Enter Username"><br><br>
+            <label for="password">Password</label><br>
+            <input type="password" name="password" style="width:100%" id="password" placeholder="Enter Password"><br><br>
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li style="color:red">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div style="align-items:center;display:flex;justify-content:center;width:100%;margin-top:30px">
+                <button type="submit" style="width:200px">
+                    LOG IN
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endif %}
+<script>
+function w3_open() {
+  document.getElementById("mySidebar").style.display = "block";
+}
+
+function w3_close() {
+  document.getElementById("mySidebar").style.display = "none";
+}</script>
 </body>
 </html>

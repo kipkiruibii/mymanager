@@ -2,9 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap">
+    <link rel="stylesheet" href="../static/css/main.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+          integrity="sha512-..........." crossorigin="anonymous"/>
+
+    <title>Welcome to MyManager</title>
+
 </head>
 <body>
+<nav style="justify-content:space-between;display:flex;width:100%;margin:0">
+    <a href="" style="text-decoration:none"><p id="title">TaskerHub</p></a>
+    <div style="padding:10px" class="nav-links">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+        <a href="">Log Out</a>
+        {% endif %}
 
+    </div>
+
+</nav>
+
+<h1 style="text-align:center;font-size:50px">
+    WE MANAGE<br>
+    YOU EARN
+</h1>
+<div style="margin-left:150px;margin-right:150px">
+    <p style="padding-top:30px;">
+        At TaskerHub, we understand that managing an online account and finding qualified taskers can be time-consuming
+        and
+        challenging. That's why we offer a unique service where we take care of all the account management for you,
+        while
+        you earn from the account.</p>
+
+    <p>Our team of experts will handle everything from finding and vetting qualified taskers to managing the tasks and
+        ensuring they are completed to your satisfaction. We'll also provide regular updates and reports so you can keep
+        track of your earnings and the progress of your tasks.</p>
+
+    <p>With TaskerHub, you can focus on what you do best while we take care of the rest. Let us help you maximize your
+        earnings.</p>
+    <h3>
+        How It Works
+    </h3>
+    <ol>
+        <li>
+            <dl>
+                <dt><h4>Sign Up</h4></dt>
+                <dd> Create an account on TaskerHub by providing basic information and the PayPal email where you will
+                    receive your payments
+                </dd>
+            </dl>
+        </li>
+        <li>
+            <dl>
+                <dt><h4>Create a Tasker account</h4></dt>
+                <div style="text-align:center">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhzGMkgXJgBRuW-ZjE9iKfePhsCfBlqCHNkA&usqp=CAU" alt="remotasks" style="width:150px;height:100px;border-radius:30px">
+                </div>
+                <dd>To create Remotasks account follow this link:
+                    <ul>
+                        <li>
+                            <div>
+                                <a href="https://www.remotasks.com/en/projects/experts-coders-us">CODERS EXPERT</a>,
+
+                            </div>
+
+                        </li>
+                        <li><a href="https://www.remotasks.com/en/projects/experts-coders-us">DATA SCIENCE EXPERT</a>,
+                        </li>
+                        <li><a href="https://www.remotasks.com/en/projects/experts-coders-us">COMPUTER SCIENCE
+                            EXPERT</a>,
+                        </li>
+                    </ul>
+
+                </dd>
+                <dd>Once you have created one of the accounts above, login to your TaskerHub dashboard and share the
+                    required credentials. Our team will reach through email to discuss further on how you will
+                    proceed.
+                </dd>
+            </dl>
+        </li>
+        <li>
+            <dl>
+                <dt><h4>Account Management</h4></dt>
+                <dd> Our team will manage your account, including finding and vetting qualified taskers, managing tasks,
+                    and
+                    ensuring they are completed to your satisfaction. We'll assign the tasks to qualified taskers who
+                    have
+                    the skills and experience to
+                    complete them.
+                </dd>
+            </dl>
+        </li>
+        <li>
+            <dl>
+                <dt><h4>Earnings</h4></dt>
+                <dd>You'll earn from the tasks completed by the taskers, and we'll handle the earnings
+                    distribution for you. You will be paid weekly via the PayPal account you provided in your profile.
+                </dd>
+            </dl>
+        </li>
+    </ol>
+    <h3>
+        Why choose us?
+    </h3>
+    <ul>
+        <li><span style="font-weight:bold">Expertise:</span> Our team of experts has years of experience in account
+            management and task delegation.
+        </li>
+        <li><span style="font-weight:bold">Quality:</span> CWe take pride in the quality of our taskers and the
+            work they produce. We carefully vet all taskers to ensure that they have the skills and experience to
+            complete
+            the tasks to the highest standards.
+        </li>
+        <li><span style="font-weight:bold">Support:</span> Our team is here to help you every step of the way. If
+            you have any questions or concerns, we're just a phone call or email away.
+        </li>
+
+    </ul>
+
+
+</div>
 </body>
 </html>
