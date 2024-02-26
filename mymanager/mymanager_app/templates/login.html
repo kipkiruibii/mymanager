@@ -10,23 +10,39 @@
     <link rel="stylesheet" href="../static/css/main.css">
     <script src="../static/js/index.js"></script>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="icon" href="https://t3.ftcdn.net/jpg/04/03/01/82/360_F_403018215_gKfioLTjxax7ScdmdS7jv2Qjqe0GUZN0.jpg" type="image/x-image">
+
+    <style>
+        input{
+        margin:10px
+        }
+
+    </style>
 </head>
-<body>
+<body style="background-image:url('https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg')">
 {% if request.user_agent.is_pc %}
 <nav class="" style="justify-content:space-between;display:flex">
     <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
     <div style="padding:10px" class="nav-links">
+        {% if request.user.is_authenticated %}
+        <a href="{%  url 'dashboard' %}" class="">Dashboard</a>
+        {% else %}
+        <a href="{%  url 'login' %}" class="" style="color:#33E24F;">Login</a>
+        <a href="{%  url 'register' %}" class="nav-active">Register</a>
+        {% endif %}
+        <a href="{%  url 'contact' %}" class="">Contact</a>
+
     </div>
 
 </nav>
 
 <div style="margin-right:20%;padding-left:20%;">
-    <h1 style="text-align:center">Log In</h1>
+    <h1 style="text-align:center;color:#07f50e">Log In</h1>
     <div class="form-box">
         <form action="{% url 'login' %}" method="POST" style="margin-top:30px">
             {% csrf_token %}
             <label for="username">Username</label><br>
-            <input type="text" name="username"  id="username" placeholder="Enter Username"><br>
+            <input type="text" name="username" id="username" placeholder="Enter Username"><br>
             <label for="password">Password</label><br>
             <input type="password" name="password" id="password" placeholder="Enter Password"><br>
             {% if messages %}
@@ -48,24 +64,38 @@
 {% else %}
 <!-- Sidebar -->
 <div class="w3-sidebar w3-bar-block w3-border-right w3-black" style="display:none;z-index:100000" id="mySidebar">
-      <a href="{% url 'home' %}" style="text-decoration:none;margin-top:30px;margin-bottom:50px;font-size:20px"><p id="title">TaskerHub</p></a>
-  <button onclick="w3_close()" class="w3-bar-item w3-large" style="margin-top:30px;margin-bottom:30px;width:130px;background:red;">Close &times;</button>
-  <nav style="margin-left:20px">
-        </nav>
+    <a href="{% url 'home' %}" style="text-decoration:none;margin-top:30px;margin-bottom:50px;font-size:20px"><p
+            id="title">TaskerHub</p></a>
+    <button onclick="w3_close()" class="w3-bar-item w3-large"
+            style="margin-top:30px;margin-bottom:30px;width:130px;background:red;">Close &times;
+    </button>
+    <nav style="margin-left:20px">
+        {% if request.user.is_authenticated %}
+        <a href="{%  url 'dashboard' %}" style="text-decoration:none;">Dashboard</a><br><br>
+        {% else %}
+        <a href="{%  url 'login' %}" style="text-decoration:none;color:#33E24F;">Login</a><br><br>
+        <a href="{%  url 'register' %}" style="text-decoration:none;">Register</a><br><br>
+        {% endif %}
+        <a href="{%  url 'contact' %}" style="text-decoration:none;">Contact</a><br><br>
+        {% if request.user.is_authenticated %}
+        <a href="{%  url 'logout' %}" style="text-decoration:none;">Log Out</a><br><br>
+        {% endif %}
+    </nav>
 </div>
-<nav  style="justify-content:space-between;display:flex;width:100%;margin:0">
+<nav style="justify-content:space-between;display:flex;width:100%;margin:0">
     <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
-  <button class="w3-button w3-black w3-xlarge w3-text-white" onclick="w3_open()">☰</button>
+    <button class="w3-button w3-black w3-xlarge w3-text-white" onclick="w3_open()">☰</button>
 </nav>
 <div style="margin-right:10px;padding-left:10px;">
-    <h1 style="text-align:center">Log In</h1>
+    <h1 style="text-align:center">{{request.user_agent.is_pc}}</h1>
     <div class="form-box">
         <form action="{% url 'login' %}" method="POST" style="margin-top:30px">
             {% csrf_token %}
             <label for="username">Username</label><br>
             <input type="text" name="username" style="width:100%" id="username" placeholder="Enter Username"><br><br>
             <label for="password">Password</label><br>
-            <input type="password" name="password" style="width:100%" id="password" placeholder="Enter Password"><br><br>
+            <input type="password" name="password" style="width:100%" id="password"
+                   placeholder="Enter Password"><br><br>
             {% if messages %}
             <ul>
                 {% for message in messages %}
@@ -84,12 +114,13 @@
 </div>
 {% endif %}
 <script>
-function w3_open() {
-  document.getElementById("mySidebar").style.display = "block";
-}
+    function w3_open() {
+      document.getElementById("mySidebar").style.display = "block";
+    }
 
-function w3_close() {
-  document.getElementById("mySidebar").style.display = "none";
-}</script>
+    function w3_close() {
+      document.getElementById("mySidebar").style.display = "none";
+    }
+</script>
 </body>
 </html>
