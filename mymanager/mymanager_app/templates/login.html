@@ -86,8 +86,8 @@
     <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
     <button class="w3-button w3-black w3-xlarge w3-text-white" onclick="w3_open()">☰</button>
 </nav>
-<div style="margin-right:10px;padding-left:10px;">
-    <h1 style="text-align:center">{{request.user_agent.is_pc}}</h1>
+<div style="margin-right:10px;padding-left:10px;height:90vh">
+    <h1 style="text-align:center;color:white">LOG IN</h1>
     <div class="form-box">
         <form action="{% url 'login' %}" method="POST" style="margin-top:30px">
             {% csrf_token %}

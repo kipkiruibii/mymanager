@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register to start earning</title>
-    <link rel="icon" href="https://t3.ftcdn.net/jpg/04/03/01/82/360_F_403018215_gKfioLTjxax7ScdmdS7jv2Qjqe0GUZN0.jpg" type="image/x-image">
+    <link rel="icon" href="https://t3.ftcdn.net/jpg/04/03/01/82/360_F_403018215_gKfioLTjxax7ScdmdS7jv2Qjqe0GUZN0.jpg"
+          type="image/x-image">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap">
     <link rel="stylesheet" href="../static/css/main.css">
@@ -69,11 +70,14 @@
                 <option value="argentina">Argentina</option>
                 <option value="australia">Australia</option>
                 <option value="canada">Canada</option>
+                <option value="india">India</option>
+                <option value="mexico">Mexico</option>
+                <option value="philippines">Philippines</option>
                 <option value="unitedstatesofamerica">United States of America</option>
 
             </select><br><br>
             <label for="phone_number">Enter Phone Number</label><br>
-            <div style="display:flex;width:100%" >
+            <div style="display:flex;width:100%">
                 <input type="text" name="dial_code" id="dial_code" value="+54" style="
             width:50px; border-top-left-radius: 10px;border-top-right-radius: 0px;border-bottom-right-radius: 0;border-bottom-left-radius: 10px;margin-right:0"
                        readonly><br>
@@ -155,10 +159,13 @@
             <input type="email" name="p_email" id="p_email" style="width:100%;" placeholder="Enter Email address"
                    required><br><br>
             <label for="country">Select Country</label><br>
-            <select id="country" name="country" onchange="updateDialCode()" >
+            <select id="country" name="country" onchange="updateDialCode()" style="width:90%">
                 <option value="argentina">Argentina</option>
                 <option value="australia">Australia</option>
                 <option value="canada">Canada</option>
+                <option value="india">India</option>
+                <option value="mexico">Mexico</option>
+                <option value="philippines">Philippines</option>
                 <option value="unitedstatesofamerica">United States of America</option>
             </select><br><br>
             <label for="phone_number">Enter Phone Number</label><br>
@@ -192,6 +199,9 @@
         argentina: "+54",
         australia: "+61",
         canada: "+1",
+        india: "+91",
+        mexico: "+52",
+        philippines: "+63",
         unitedstatesofamerica: "+1",
         };
         // Update the dial code input field and the hidden input field

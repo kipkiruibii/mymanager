@@ -116,11 +116,11 @@
 </head>
 
 <body>
+
+{% if request.user_agent.is_pc %}
 <nav style="justify-content:space-between;display:flex;width:100%;margin:0;background:#0e071c">
     <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
 </nav>
-
-{% if request.user_agent.is_pc %}
 
 <div id="paypalChangeModal" class="modal">
     <div class="modal-content">
@@ -348,6 +348,7 @@
 
 </div>
 
+
 <div style="display: flex;">
     <div style="width: 20%;background: #e1d7f5;padding-top: 20px;padding-left:20px">
         <p style="color: #0E7DA6;">
@@ -469,11 +470,22 @@
                         </tr>
                         {% endfor %}
                     </table>
+
                     {% else %}
                     <div style="display:flex;justify-content:center;">
                         <p>You have no recent withdrawals</p>
                     </div>
                     {% endif %}
+                    <div>
+                        <p style="font-weight:bold">Terminologies</p>
+                        <p><span style="color:blue">Pending</span>: <span>The request is under process. This can take anywhere from a few seconds to 48 hours since the Payday (every Thursday).</span>
+                        </p>
+                        <p><span style="color:red">Rejected</span>: <span>We could not complete your request due to technical issues. Kindly ensure you have a PayPal account that can receive funds.</span>
+                        </p>
+                        <p><span style="color:green">Paid</span>: The request was successful and funds have been
+                            transferred to your PayPal account.</p>
+                    </div>
+
 
                 </div>
                 <hr style="color:red;width:100%;height:3px">
@@ -492,7 +504,7 @@
                             {% if myAccounts|length > 0 %}
                             <label for="account">Select Account</label>
                             <select id="account" name="account" onchange="updateAccount()"
-                                    style="width:40%;margin:15px;background:#bfbfbf">
+                                    style="width:60%;margin:15px;background:#bfbfbf">
                                 {% for account in myAccounts %}
                                 <option value="{{account.accountEmail}}">{{account.accountEmail}}</option>
                                 {% endfor %}
@@ -611,6 +623,17 @@
                     </tr>
                     {% endfor %}
                 </table>
+                <div>
+                    <p style="font-weight:bold">Terminologies</p>
+                    <p><span style="color:blue">Pending</span>: <span>The account is still under review or is at the set-up stage.</span>
+                    </p>
+                    <p><span style="color:red">Rejected</span>: <span>We could not access the account. This may be due to various reasons such
+                    as incorrect credentials. This account will be removed after 7 days. Re-submit the account with the correct details.</span>
+                    </p>
+                    <p><span style="color:green">Active</span>: The account set-up is complete and taskers have been
+                        allocated. Earnings from this account will be displayed in the Analytics section</p>
+                </div>
+
                 {% else %}
                 <div style="display:flex;justify-content:center;">
                     <p>You have no accounts. All accounts will be displayed here</p>
@@ -651,6 +674,588 @@
 </div>
 
 {% else %}
+<div class="w3-sidebar w3-bar-block w3-border-right w3-black" style="display:none;z-index:100000" id="mySidebar">
+    <a href="{% url 'home' %}" style="text-decoration:none;margin-top:30px;margin-bottom:50px;font-size:20px"><p
+            id="title">TaskerHub</p></a>
+    <button onclick="w3_close()" class="w3-bar-item w3-large"
+            style="margin-top:30px;margin-bottom:30px;width:130px;background:red;">Close &times;
+    </button>
+    <nav style="margin-left:20px">
+        <div style="display: flex;flex-direction: column;justify-content: space-between;height: 90%;">
+            <ul style="list-style-type: none;">
+                <li class="tab_btn" onclick="switchTabM('basic_info')" style="color:white" id="bs_inf">Basic Info</li>
+                <li class="tab_btn" onclick="switchTabM('analytics')" style="color:#0E7DA6" id="bs_ana">Analytics</li>
+                <li class="tab_btn" onclick="switchTabM('billing')" style="color:white" id="bs_bil">Withdrawals</li>
+                <li class="tab_btn" onclick="switchTabM('my_apis')" style="color:white" id="bs_mya">My Accounts</li>
+                <li class="tab_btn" onclick="switchTabM('my_sub')" style="color:white" id="bs_mysub">Notifications
+                </li>
+            </ul>
+            <a href="{% url 'logout' %}" style="padding-bottom:10px;text-decoration:none;color:red">
+                <p>
+                    <span>
+                        <i class="fa fa-sign-out"></i>
+                    </span>
+                    SIGN OUT
+                </p>
+
+            </a>
+        </div>
+    </nav>
+</div>
+<nav style="justify-content:space-between;display:flex;width:100%;margin:0;background:#0e071c">
+    <a href="{% url 'home' %}" style="text-decoration:none"><p id="title">TaskerHub</p></a>
+    <button class="w3-button w3-black w3-xlarge w3-text-white" onclick="w3_open()">☰</button>
+</nav>
+
+<div id="paypalChangeModal" class="modal" style="width:100%">
+    <div class="modal-content" style="width:90%;">
+        <h3 style="color:red">Change Paypal Email</h3>
+        <hr style="margin:15px;color:black">
+        <p> Current Paypal Email <strong id="myPypl">{{profile.paypalEmail}}</strong></p>
+        <p>Change to: </p>
+        <form id="paypalChangeForm">
+            {% csrf_token %}
+            <input type="email" name="paypal_email" id="paypal_email" required style="width:100%"><br>
+            <div style="display:flex;margin-top:15px;margin-bottom:15px">
+                <input type="checkbox" name="confirm_paypal" id="confirm_paypal" style="width:15px;height:15px"
+                       required>
+                <small style="margin-left:15px">Check to confirm the new PayPal email address.</small>
+            </div>
+
+            <p>Note: TaskerHub will not be responsible for payments made to the wrong PayPal. Kindly confirm before
+                submitting </p>
+            <div style="display:flex;justify-content:space-between">
+                <div id="spinner_paypal"
+                     style="display:none;justify-content:center;width:100%;margin-top:15px;margin-bottom:15px">
+                    <div>
+                        <span style="color:grey">Processing request </span>
+                        <i class="fa fa-circle-o-notch fa-spin" style="color:grey"></i>
+                    </div>
+                </div>
+                <div id="result_ppl" style="display:none">
+                    <p id="ppl_messg"></p>
+                    <div style="display:flex;justify-content:center;width:100%">
+                        <div class="button okref" id="ok_ppl"
+                             style="font-size:15px;font-weight:normal;color:white;padding-left:15px;padding-right:15px">
+                            OK
+                        </div>
+                    </div>
+
+                </div>
+                <button class="button close" id="cancel_change" style="font-size:15px;font-weight:normal;color:white">
+                    Cancel
+                </button>
+                <button type="submit" class="button" style="background-color:red" id="submit_change">Change</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div id="requestWithdrawModal" class="modal" style="width:100%">
+    <div class="modal-content" style="width:90%;">
+        <h3 style="color:red">Request Withdrawal</h3>
+        <hr style="margin:15px;color:black">
+        <p> Available Balance: <strong style="color:#4ab555">$<span
+                id="availBal">{{profile.balanceActual}}</span></strong></p>
+        {% if profile.balanceActual > 25 %}
+        <p>Amount to withdraw: </p>
+        <form id="withdrawalReqForm">
+            {% csrf_token %}
+            <input type="number" name="with_amt" id="with_amt" required style="width:100%"><br>
+            <small id="withdrawal_condition" style="margin-top:15px;color:red">Minimum withdrawal is $25 </small>
+            <p>Payment will be made to PayPal Account:<strong>{{profile.paypalEmail}}</strong></p>
+            <div style="display:flex;margin-top:15px;margin-bottom:15px">
+                <input type="checkbox" name="confirm_paypal" id="conf_with_amt" style="width:15px;height:15px"
+                       required>
+                <small style="margin-left:15px">Check to confirm the transaction.</small>
+            </div>
+            <p>Note: TaskerHub will not be responsible for payments made to the wrong PayPal. Kindly confirm before
+                submitting. </p>
+            <div style="display:flex;justify-content:space-between">
+                <div id="spinner_with"
+                     style="display:none;justify-content:center;width:100%;margin-top:15px;margin-bottom:15px">
+                    <div>
+                        <span style="color:grey">Processing request </span>
+                        <i class="fa fa-circle-o-notch fa-spin" style="color:grey"></i>
+                    </div>
+                </div>
+                <div id="result_with" style="display:none">
+                    <p id="with_messg"></p>
+                    <div style="display:flex;justify-content:center;width:100%">
+                        <div class="button okref" id="ok_with"
+                             style="font-size:15px;font-weight:normal;color:white;padding-left:15px;padding-right:15px">
+                            OK
+                        </div>
+                    </div>
+
+                </div>
+                <button class="button close" style="font-size:15px;font-weight:normal;color:white" id="cancel_with">
+                    Cancel
+                </button>
+                <button type="submit" class="button" style="background-color:#faa5a6" id="submit_with_request" disabled>
+                    Withdraw
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <p style="color:red">You have insufficient balance in your account. Minimum withdrawal amount is $25 </p>
+        <div class="button close" style="font-size:15px;font-weight:normal;color:white;background:red">
+            Close
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<div id="addAccountModal" class="modal" style="width:100%">
+    <div class="modal-content" style="width:90%;">
+        <h3 style="color:red">Add Account</h3>
+        <hr style="margin:15px;color:black">
+        <form id="addAccnt">
+            {% csrf_token %}
+            <label for="remo_email">Gmail address of the Remotask account</label><br>
+            <input type="email" name="remo_email" id="remo_email" required
+                   style="margin-top:15px;margin-bottom:15px;width:100%;"><br>
+            <label for="remo_email">Password of the Gmail Account</label><br>
+            <input type="text" name="remo_pass" id="remo_pass" required
+                   style="margin-top:15px;margin-bottom:15px;width:100%;"><br>
+            <div style="display:flex;margin-top:15px;margin-bottom:15px">
+                <input type="checkbox" name="confirm_details" id="conf_details" style="width:15px;height:15px"
+                       required>
+                <small style="margin-left:15px">Check to confirm the provided details.</small>
+            </div>
+            <p>Note: By clicking submit, you grant us the permission to manage the account above as per our <span
+                    id="termsBtn"
+                    style="color:blue;cursor:pointer">Terms
+                and conditions </span></p>
+
+
+            <div id="result_accnt" style="display:none;width:100%">
+                <p style="width:100%;text-align:center" id="accnt_messg"></p>
+                <div style="display:flex;justify-content:center;width:100%">
+                    <div class="button okref" id="ok_accnt"
+                         style="font-size:15px;font-weight:normal;color:white;padding-left:15px;padding-right:15px">
+                        OK
+                    </div>
+                </div>
+
+            </div>
+            <div id="spinner_accnt"
+                 style="display:none;justify-content:center;width:100%;margin-top:15px;margin-bottom:15px">
+                <div>
+                    <span style="color:grey">Processing request </span>
+                    <i class="fa fa-circle-o-notch fa-spin" style="color:grey"></i>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;width:100%">
+
+                <button class="button close" style="font-size:15px;font-weight:normal;color:white" id="cancel_accnt">
+                    Cancel
+                </button>
+                <button class="button" type="submit" style="background-color:red" id="submit_accnt">Submit</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div id="termsAndCoModal" class="modal" style="width:100%">
+    <div class="modal-content" style="width:90%;">
+        <h3 style="color:red">Terms and Conditions</h3>
+        <hr style="margin:15px;color:black">
+        <p>These Terms and Conditions ("Terms", "Terms and Conditions") govern your relationship with the
+            https://taskerhub.roniib.com website (the "Service") operated by TaskerHub ("us", "we", or "our").</p>
+        <h2>Accounts</h2>
+        <p>When you create an account with us, you must provide us information that is accurate, complete, and current
+            at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination
+            of your account on our Service.</p>
+        <p>You are responsible for safeguarding the password that you use to access the Service and for any activities
+            or actions under your password, whether your password is with our Service or a third-party service.</p>
+        <p>You agree not to disclose your password to any third party. You must notify us immediately upon becoming
+            aware of any breach of security or unauthorized use of your account.</p>
+        <h3>
+            Tasker Accounts
+        </h3>
+        <p>By Submitting the tasker account credentials to Us, you grant us permission to manage tha account. You will
+            NOT be able to access this Tasker account UNLESS DIRECTED BY US and any form of bypassing will result to
+            immediate termination of your TaskerHub Account. </p>
+        <p>All progress of your Tasker Account will be available in your TaskerHub account and should be accessed ONLY
+            using your TaskerHub Account. </p>
+        <h2>Intellectual Property</h2>
+        <p>The Service and its original content, features, and functionality are and will remain the exclusive property
+            of Example Company and its licensors. The Service is protected by copyright, trademark, and other laws of
+            both the United States and foreign countries. Our trademarks and trade dress may not be used in connection
+            with any product or service without the prior written consent of Example Company.</p>
+        <h2>Links To Other Web Sites</h2>
+        <p>Our Service may contain links to third-party web sites or services that are not owned or controlled by
+            Example Company.</p>
+        <p>Example Company has no control over, and assumes no responsibility for, the content, privacy policies, or
+            practices of any third-party web sites or services. You further acknowledge and agree that Example Company
+            shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be
+            caused by or in connection with use of or reliance on any such content, goods or services available on or
+            through any such web sites or services.</p>
+        <p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or
+            services that you visit.</p>
+        <h2>Termination</h2>
+        <p>We may terminate or suspend access to our Service immediately, without prior notice or liability, for any
+            reason whatsoever, including without limitation if you breach the Terms.</p>
+        <p>All provisions of the Terms which by their nature should survive termination shall survive termination,
+            including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of
+            liability.</p>
+        <p>We may terminate or suspend your account immediately, without prior notice or liability, for any reason
+            whatsoever, including without limitation if you breach the Terms.</p>
+        <p>Upon termination, your right to use the Service will immediately cease. If you wish to terminate your
+            account, you may simply discontinue using the Service.</p>
+        <h2>Governing Law</h2>
+        <p>These Terms shall be governed and construed in accordance with the laws of California, United States, without
+            regard to its conflict of law provisions.</p>
+        <p>Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights.
+            If any provision of these Terms is held to be invalid or unenforceable by a court, the remaining provisions
+            of these Terms will remain in effect. These Terms constitute the entire agreement between us regarding our
+            Service, and supersede and replace any prior agreements we might have between us regarding the Service.</p>
+        <h2>Changes</h2>
+        <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is
+            material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What
+            constitutes a material change will be determined at our sole discretion.</p>
+        <p>By continuing to access or use our Service after those revisions become effective, you agree to be bound by
+            the revised terms. If you do not agree to the new terms, please stop using the Service.</p>
+        <h2>Contact Us</h2>
+        <p>If you have any questions about these Terms, please contact us.</p>
+        <div style="display:flex;justify-content:center">
+            <div class="button " id="closeTerms" style="font-size:15px;font-weight:normal;color:white">
+                I understand
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+<div id="sideNav2" style="width: 20%;background: #e1d7f5;padding-top: 20px;padding-left:20px;display:none">
+    <p style="color: #0E7DA6;">
+                <span>
+                    <i class="fa fa-user"></i>
+                </span>
+        DASHBOARD
+    </p>
+    <div style="display: flex;flex-direction: column;justify-content: space-between;height: 90%;">
+        <ul style="list-style-type: none;">
+            <li class="tab_btn" onclick="switchTab('basic_info')" style="color:black" id="bs_inf">Basic Info</li>
+            <li class="tab_btn" onclick="switchTab('analytics')" style="color:#0E7DA6" id="bs_ana">Analytics</li>
+            <li class="tab_btn" onclick="switchTab('billing')" style="color:black" id="bs_bil">Withdrawals</li>
+            <li class="tab_btn" onclick="switchTab('my_apis')" style="color:black" id="bs_mya">My Accounts</li>
+            <li class="tab_btn" onclick="switchTab('my_sub')" style="color:black" id="bs_mysub">Notifications
+            </li>
+        </ul>
+        <a href="{% url 'logout' %}" style="padding-bottom:10px;text-decoration:none;color:red">
+            <p>
+                    <span>
+                        <i class="fa fa-sign-out"></i>
+                    </span>
+                SIGN OUT
+            </p>
+
+        </a>
+    </div>
+
+</div>
+<div style="margin:10px">
+    <div class="disp_content" id="basic_info" style="display:none">
+        <div class="with-search">
+            <h2>Basic Info</h2>
+        </div>
+        <div style="">
+            <img id="previewImage"
+                 src="https://icons.veryicon.com/png/o/miscellaneous/zr_icon/basic-information-2.png"
+                 alt="info svg" width="100" height="100">
+
+            <div>
+                <p>Name: <span style="font-weight:bold">{{ profile.firstname }} {{profile.lastname}}</span></p>
+                <p>Username: <span style="font-weight:bold">{{ profile.username }}</span></p>
+                <p>Email: <span style="font-weight:bold">{{ profile.email }} </span></p>
+                <hr style="color:black;margin-top:!5px">
+                <div style="display:flex;justify-content:space-between;width:100%">
+                    <p>Paypal Email: <span style="font-weight:bold">{{ profile.paypalEmail }} </span></p>
+                    <div id="change_paypal">
+                        <p style="background:#bfbfbf;border-radius:5px;padding:5px;cursor:pointer"> EDIT</p>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="disp_content" id="billing" style="display:none">
+        <div class="with-search">
+            <h2>Withdrawals</h2>
+        </div>
+        <div style="width:100%;overflow-x:auto;">
+            {% if transactions|length > 0 %}
+            <table class="w3-table w3-striped w3-center" style="width:100%;">
+                <tr>
+                    <th>
+                        <div style="display:flex">
+                            <p style="margin-left:20px">Withdrawal ID</p>
+                        </div>
+                    </th>
+                    <th>
+                        <div style="display:flex">
+                            <p style="margin-left:20px">Amount</p>
+                        </div>
+                    </th>
+                    <th>
+                        <div style="width:120px">
+                            <p style="margin-left:20px">Date</p>
+                        </div>
+                    </th>
+                    <th>
+                        <div style="display:flex">
+                            <p style="margin-left:20px">Status</p>
+                        </div>
+                    </th>
+                </tr>
+                {% for t in transactions %}
+                <tr>
+                    <td>
+                        <div style="display:flex">
+                            <p style="margin-left:20px">{{t.transactionId}}</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display:flex;margin-left:20px">
+                            <p>${{t.transactionAmount}}</p>
+                        </div>
+
+                    </td>
+                    <td>
+                        <div style="display:flex;margin-left:20px">
+                            <p>{{t.transactionDate}}</p>
+                        </div>
+
+                    </td>
+                    <td>
+                        <div style="display:flex;margin-left:20px">
+                            {% if t.transactionStatus == 'success' %}
+                            <p style="color:green">Paid</p>
+                            {% elif t.transactionStatus == 'pending' %}
+                            <p style="color:blue">Pending</p>
+                            {% else %}
+                            <p style="color:red">Failed</p>
+
+                            {% endif %}
+                        </div>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <div style="display:flex;justify-content:center;">
+                <p>You have no recent withdrawals</p>
+            </div>
+            {% endif %}
+
+        </div>
+        <div>
+            <p style="font-weight:bold">Terminologies</p>
+            <p><span style="color:blue">Pending</span>: <span>The request is under process. This can take anywhere from a few seconds to 48 hours since the Payday (every Thursday).</span>
+            </p>
+            <p><span style="color:red">Rejected</span>: <span>We could not complete your request due to technical issues. Kindly ensure you have a PayPal account that can receive funds.</span>
+            </p>
+            <p><span style="color:green">Paid</span>: The request was successful and funds have been
+                transferred to your PayPal account.</p>
+        </div>
+
+
+        <hr style="color:red;width:100%;height:3px">
+
+    </div>
+    <div class="disp_content" id="analytics" style="display:block">
+        <div class="with-search" style="display:flex;justify-content:space-between">
+            <h2>Analytics</h2>
+            <div style="width:30%">
+                <small id="not_active" style="color:red;display:none">This account is not active yet</small>
+                {% if lastAccount.accountStatus != 'active' %}
+                <small id="not_active_2" style="color:red;">This account is not active yet</small>
+                {% endif %}
+            </div>
+
+        </div>
+        <div>
+            <div id="analytics_tab">
+                <div style="width:100%;">
+                    {% if myAccounts|length > 0 %}
+                    <label for="account">Select Account</label>
+                    <select id="account" name="account" onchange="updateAccount()"
+                            style="width:60%;margin:15px;background:#bfbfbf">
+                        {% for account in myAccounts %}
+                        <option value="{{account.accountEmail}}">{{account.accountEmail}}</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <p style="color:red">You have no accounts yet</p>
+                    {% endif %}
+                </div>
+
+                <div style="display:flex;justify-content:space-between">
+
+
+                    <div id="withdrw_bal">
+                        <p id="withdrw_btn"
+                           style="margin:0px;padding:10px;color:green;cursor: pointer;border-color:green;border-radius:10px;border-style: solid;display:flex;justify-content:center">
+                            <i class="fa fa-money" style="padding:5px"></i> Request Withdrawal</p>
+                    </div>
+
+                </div>
+                <hr style="margin-top:25px">
+
+                <div style="display:flex;justify-content:space-between;flex-direction: column;height:380px;">
+                    <div style="background-color:#1b2636;border-radius:10px;margin:10px">
+                        <p id=""
+                           style="font-size:40px;color:white;margin-top:0px;margin-bottom:0px;text-align: center;">
+                            ${{profile.withdrawSuccess}}</p>
+                        <p style="color:white;text-align: center;">Withdrawn Total (All)</p>
+                    </div>
+                    <div style="background-color:#32a852;border-radius:10px;margin:10px">
+                        <p style="font-size:40px;color:white;margin-top:0px;margin-bottom:0px;text-align: center;">
+                            $<span id="total_perf">{{lastAccount.accountBalanceHold}}</span></p>
+                        <p style="color:white;text-align: center;">{{week}}</p>
+                    </div>
+                    <div style="background-color:#a88c32;border-radius:10px;margin:10px">
+                        <p style="font-size:40px;color:white;margin-top:0px;margin-bottom:0px;text-align: center;">
+                            $<span id="act_bal">{{profile.balanceActual}}</span></p>
+                        <p style="color:white;text-align: center;">Available Total (All)</p>
+                    </div>
+                </div>
+                <div class="x_content" style="margin-top:30px;margin-bottom:15px">
+                    <canvas id="mybarChart"></canvas>
+                </div>
+
+            </div>
+            <div id="loading_tab" style="width:100%;margin-top:50px;display:none">
+
+                <div style="display:flex;justify-content:center;width:100%;">
+                    <div style="font-size:25px;color:grey">
+                        <p>Fetching data <i class="fa fa-spinner fa-spin"></i></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="disp_content" id="my_apis" style="display:none">
+        <div class="with-search">
+            <h2>My Remotasks Accounts</h2>
+        </div>
+        <div>
+            <div style="width:100%;display:flex;justify-content:center">
+                <div id="add_accnt"
+                     style="border-color:green;border-radius:10px;border-style: solid; display:flex;justify-content:center">
+                    <p id="accnt_btn" style="margin:0px;padding:5px;color:green;cursor: pointer;"><i
+                            class="fa fa-plus"></i> Add Account</p>
+                </div>
+            </div>
+            <hr style="color:black;width:100%;height:3px">
+            {% if myAccounts|length > 0 %}
+            <div style="overflow-x:auto">
+                <table class="w3-table w3-striped w3-center" style="width:100%">
+                    <tr>
+                        <th>
+                            <div style="width:120px;">
+                                <p style="margin-left:20px">Date Updated</p>
+                            </div>
+                        </th>
+                        <th>
+                            <div style="display:flex">
+                                <p style="margin-left:20px">Account Email</p>
+                            </div>
+                        </th>
+                        <th>
+                            <div style="width:120px;">
+                                <p style="margin-left:20px">status</p>
+                            </div>
+                        </th>
+                    </tr>
+                    {% for t in myAccounts %}
+                    <tr>
+                        <td>
+                            <div style="display:flex">
+                                <p style="margin-left:20px">{{t.dateCreated}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex;margin-left:20px">
+                                <p>{{t.accountEmail}}</p>
+                            </div>
+
+                        </td>
+                        <td>
+                            <div style="display:flex;margin-left:20px">
+                                {% if t.accountStatus == 'active' %}
+                                <p style="color:green">Active</p>
+                                {% elif t.accountStatus == 'pending' %}
+                                <p style="color:blue">Pending</p>
+                                {% else %}
+                                <p style="color:red">Rejected</p>
+
+                                {% endif %}
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div>
+                <p style="font-weight:bold">Terminologies</p>
+                <p><span style="color:blue">Pending</span>: <span>The account is still under review or is at the set-up stage.</span>
+                </p>
+                <p><span style="color:red">Rejected</span>: <span>We could not access the account. This may be due to various reasons such
+                    as incorrect credentials. This account will be removed after 7 days. Re-submit the account with the correct details.</span>
+                </p>
+                <p><span style="color:green">Active</span>: The account set-up is complete and taskers have been
+                    allocated You can earn from this account</p>
+            </div>
+
+            {% else %}
+            <div style="display:flex;justify-content:center;">
+                <p>You have no accounts. All accounts will be displayed here</p>
+            </div>
+            {% endif %}
+
+
+        </div>
+    </div>
+    <div class="disp_content" id="my_sub" style="display:none">
+        <div class="with-search">
+            <h2>Notifications</h2>
+        </div>
+
+        <div style="margin:10px">
+            {% if notifications %}
+            {% for n in notifications %}
+            <div style="padding-bottom:20px;margin-bottom:10px;display:flex;background-color:#ddfaff">
+                <div style="width:5px;background-color:#6E6E6E;margin-right:10px"></div>
+                <div>
+                    <p>{{n.notificationDate}}</p>
+                    <p style="font-size:20px">{{n.notificationSubject}}</p>
+                    <hr style="color:black">
+                    <p>{{n.notificationMessage}}.</p>
+                </div>
+            </div>
+
+            {% endfor %}
+            {% else %}
+            <p>Looks like there is nothing here</p>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
 
 {% endif %}
 <script>
@@ -658,6 +1263,24 @@
     function switchTab(val) {
         swid = '#' + val;
         $('.tab_btn').css('color', 'black');
+        if (val == 'basic_info') {
+            $('#bs_inf').css('color', '#0E7DA6');
+        } else if (val == 'analytics') {
+            $('#bs_ana').css('color', '#0E7DA6');
+        } else if (val == 'billing') {
+            $('#bs_bil').css('color', '#0E7DA6');
+        } else if (val == 'my_apis') {
+            $('#bs_mya').css('color', '#0E7DA6');
+        } else {
+            $('#bs_mysub').css('color', '#0E7DA6');
+        }
+        $('.disp_content').css('display', 'none');
+        $(swid).css('display', 'block');
+    }
+    function switchTabM(val) {
+        swid = '#' + val;
+        document.getElementById("mySidebar").style.display = "none";
+        $('.tab_btn').css('color', 'white');
         if (val == 'basic_info') {
             $('#bs_inf').css('color', '#0E7DA6');
         } else if (val == 'analytics') {
@@ -989,6 +1612,16 @@ $(document).ready(function() {
 
     }
 
+
+    function w3_open() {
+      $('.modal').hide();
+      document.getElementById("mySidebar").style.display = "block";
+    }
+
+    function w3_close() {
+      document.getElementById("mySidebar").style.display = "none";
+    }
 </script>
+
 </body>
 </html>

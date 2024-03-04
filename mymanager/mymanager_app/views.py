@@ -131,6 +131,15 @@ def withdrawBalance(request):
                         transactionId=generate_transaction_id()
                     )
                     ut.save()
+                    un = UserNotifications(
+                        notifiedUser=up,
+                        notificationSubject='WITHDRAWAL REQUEST RECEIVED',
+                        notificationMessage=f'Your request to withdraw ${amt} has been received and is being processed.'
+                                            f' Your new account balance now stands at ${new_bal}'
+
+                    )
+                    un.save()
+
     return JsonResponse({'newBal': new_bal, 'resultType': resultType, 'message': message})
 
 
@@ -173,6 +182,14 @@ def changePaypalEmail(request):
                 up.save()
                 message = f"Your Paypal email has been successfully updated to {pp_email}"
                 resultType = 'success'
+                un = UserNotifications(
+                    notifiedUser=up,
+                    notificationSubject='PAYPAL EMAIL CHANGED',
+                    notificationMessage=f'Your paypal email was successfully updated to {pp_email}.'
+                                        f' If this was not you, kindly contact us as soon as possible.'
+
+                )
+                un.save()
     return JsonResponse({'message': message, 'email': pp_email, 'resultType': resultType})
 
 
@@ -199,6 +216,16 @@ def uploadRemoAccount(request):
                     message = 'Account uploaded successfully and is under review.'
 
                     resultType = 'success'
+                    un = UserNotifications(
+                        notifiedUser=up,
+                        notificationSubject='ACCOUNT UPLOADED SUCCESSFULLY',
+                        notificationMessage=f'You have successfully added an account {remo_email} under your profile for us to manage.'
+                                            f' We will review and set up the account accordingly. Once this is successful,'
+                                            f' we will allocate taskers after which you will be able to earn from this account.'
+
+                    )
+                    un.save()
+
     return JsonResponse({'message': message, 'resultType': resultType})
 
 
@@ -216,6 +243,7 @@ def accountPerformance(request):
                 up = UserProfile.objects.filter(username=request.user.username).first()
                 if up:
                     resultType = 'success'
+
     return JsonResponse(
         {'withdrawn': withdrawn,
          'resultType': resultType,
@@ -225,6 +253,8 @@ def accountPerformance(request):
 
 
 def loginP(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     if request.method == 'POST':
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
@@ -238,6 +268,8 @@ def loginP(request):
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     if request.method == 'POST':
         firstname = request.POST.get('fname', '')
         lastname = request.POST.get('lname', '')
